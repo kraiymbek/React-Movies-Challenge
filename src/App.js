@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import Movie from "./Movie/Movie";
 import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
+import Imdb from "./Movie/Imdb";
 
 class App extends Component {
 
@@ -25,10 +26,11 @@ class App extends Component {
                     }}
                     showLabels
                 >
-                    <BottomNavigationAction label="Home" to="/" component={Link}  />
+                    <BottomNavigationAction label="Imdb" to="/" component={Link}  />
                     <BottomNavigationAction label="MovieList" to="/movieList" component={Link} />
                 </BottomNavigation>
                 <hr/>
+                <Route path="/" exact render={(props) => <Imdb/> }  />
                 <Route path="/movieList" render={(props) => <Movie/> }  />
             </Router>
         );

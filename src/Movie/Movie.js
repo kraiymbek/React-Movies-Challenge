@@ -23,7 +23,7 @@ import Grid from "@material-ui/core/Grid";
         return(
             <Container maxWidth="lg">
                 <Grid container spacing={3}>
-                        <MovieLists onClickItem={this.onClickItem.bind(this)}/>
+                        <MovieLists tableUpdate={this.detailTableUpdate()} onClickItem={this.onClickItem.bind(this)}/>
                         {this.renderDetail()}
                 </Grid>
             </Container>
@@ -33,6 +33,7 @@ import Grid from "@material-ui/core/Grid";
      renderDetail() {
          if (this.state.isItemClicked) {
              return <MovieListDetail
+                 tableUpdate={this.detailTableUpdate}
                  moviesLists={this.state.moviesLists}
                  isItemClicked={this.state.isItemClicked}
                  currentMovielist = {this.state.currentMovielist}
@@ -44,6 +45,10 @@ import Grid from "@material-ui/core/Grid";
          }
      }
 
+     detailTableUpdate() {
+         return true;
+     }
+
      onClickItem(item){
          this.setState({
              isItemClicked: item !== 'deleted',
@@ -51,54 +56,4 @@ import Grid from "@material-ui/core/Grid";
          });
 
      }
-
-
-
-    saveRecipe(oRecipe,nRecipe){
-        // console.log(nRecipe.editIngredientName.value);
-        //
-        const nName = nRecipe.editNameInput.value;
-        const nImagePath = nRecipe.editImageInput.value;
-        const nDescription = nRecipe.editDescriptionInput.value;
-        const nIngredientName = nRecipe.editIngredientName.value;
-        const nIngredientAmout = nRecipe.editIngredientAmount.value;
-
-        const foundRecipe = this.state.recipes.find(recipe=> recipe.id == oRecipe.id );
-        foundRecipe.name = nName;
-        foundRecipe.imgPath = nImagePath;
-        foundRecipe.description = nDescription;
-        foundRecipe.ingredients.amount = nIngredientAmout;
-        foundRecipe.ingredients.name = nIngredientName;
-
-        this.setState({
-            contacts: this.state.contacts,
-            isEditing: false
-        })
-
-
-
-
-
-
-        //
-        //
-        // const foundContact = this.state.contacts.find(contact => contact.name === oContactName);
-        // foundContact.name = newName;
-        // foundContact.phone = newPhone;
-        // foundContact.city = newCity;
-        // foundContact.graduateFrom = newGrad;
-        //
-        // this.setState({contacts: this.state.contacts});
-
-
-
-    }
-    //
-    // deleteContact(contactToDelete){
-    //     _.remove(this.state.contacts,contact => contact.name === contactToDelete);
-    //
-    //     this.setState({
-    //         contacts: this.state.contacts
-    //     });
-    // }
 }
