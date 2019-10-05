@@ -3,6 +3,7 @@ import { Container } from "@material-ui/core";
 import MaterialTable from "material-table";
 import {addMovie, getImdbList, getMoviesLists, updateMoviesList} from "../helpers/movieListHelper";
 import CustomizedDialogs from "./imdb-dialog";
+import TextField from "@material-ui/core/TextField";
 
 
 export default class Imdb extends Component {
@@ -10,18 +11,7 @@ export default class Imdb extends Component {
     constructor(props){
         super(props);
 
-        getImdbList({s: 'hungry'})
-            .then(resp => {
-                this.setState({data: resp.data.Search.map(item => {
-                        return {
-                            title: item.Title,
-                            year: item.Year,
-                            genre: item.Type,
-                            rating: 0,
-                        }
-                    })});
-            })
-            .catch(err => console.log(err));
+        this.getImdbData('hungry');
 
         getMoviesLists()
             .then(resp => {
@@ -43,7 +33,25 @@ export default class Imdb extends Component {
             currentRow: {},
             moviesLists: [],
             isDialogOpen: false,
+            globalSearch: '',
         };
+    }
+
+    getImdbData(quickSearch) {
+        getImdbList({s: quickSearch})
+            .then(resp => {
+                if (resp && resp.data.Search && resp.data.Search.length) {
+                    this.setState({data: resp.data.Search.map(item => {
+                            return {
+                                title: item.Title,
+                                year: item.Year,
+                                genre: item.Type,
+                                rating: 0,
+                            }
+                        })});
+                }
+            })
+            .catch(err => console.log(err));
     }
 
     getData() {
@@ -58,6 +66,19 @@ export default class Imdb extends Component {
     render(){
         return(
             <Container maxWidth="lg">
+                <form noValidate autoComplete="off">
+                    <TextField
+                        id="outlined-search"
+                        label="Global Imdb search"
+                        type="search"
+                        margin="normal"
+                        variant="outlined"
+                        value={this.state.globalSearch}
+                        onChange={this.handleGlobalSearch.bind(this)}
+                    />
+                </form>
+
+
                     <MaterialTable
                         title='Imdb title'
                         columns={this.state.columns}
@@ -87,6 +108,11 @@ export default class Imdb extends Component {
 
     closeDialog (){
         this.setState({isDialogOpen: false});
+    }
+
+    handleGlobalSearch(e) {
+        this.setState({globalSearch: e.target.value});
+        this.getImdbData(e.target.value);
     }
 
     handleDialog(e) {

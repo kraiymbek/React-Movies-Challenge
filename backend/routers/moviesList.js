@@ -29,12 +29,26 @@ router.post('/moviesList/create', async (req, res) => {
 
 router.get('/moviesList', async (req, res) => {
     MoviesList.find({}, (err, MoviesLists) => {
-            if (MoviesLists) {
-                res.send(MoviesLists);
-                return;
-            }
-            res.status(500).send()
-        });
+        if (err) return res.status(500).send(err);
+        if (MoviesLists) {
+            MoviesLists.forEach(item => {
+                const movies = item.movies.map(item => mongoose.Types.ObjectId(item));
+
+                Movies.find({
+                    '_id': {
+                        $in: movies
+                    }
+                }, (err, Movies) => {
+                    const aveRating = Movies.reduce((a, b) => a + b.rating, 0);
+                    item['averageRating'] = aveRating/item.movies.length;
+                    console.log(item)
+                });
+            });
+
+            console.log(MoviesLists)
+            return res.status(200).send(MoviesLists);
+        }
+    });
 });
 
 router.get('/moviesList/:id', async (req, res) => {
