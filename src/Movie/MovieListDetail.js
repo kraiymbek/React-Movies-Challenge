@@ -32,6 +32,19 @@ export default class MovieListDetail extends Component {
 
     }
 
+    componentDidMount() {
+        console.log(this)
+    }
+
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        // getMoviesByIds({movies: this.props.currentMovielist.movies})
+        //     .then(res => {
+        //         this.setState({data: res.data})
+        //     })
+        //     .catch(err => console.log(err));
+    }
+
     render()
     {
         return (

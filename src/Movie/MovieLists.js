@@ -11,6 +11,7 @@ import Paper from '@material-ui/core/Paper';
 import {createMoviesList, deleteMoviesListById, getMoviesLists} from '../helpers/movieListHelper'
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
+import {Link} from "react-router-dom";
 
 const StyledTableCell = withStyles(theme => ({
     head: {
@@ -41,7 +42,9 @@ export default class MovieLists extends Component {
         };
     }
 
-
+    componentWillReceiveProps() {
+        console.log("some props")
+    }
 
     componentDidMount() {
         this.getData();
@@ -60,7 +63,7 @@ export default class MovieLists extends Component {
             <StyledTableRow  key={row._id} >
                 <StyledTableCell component="th" scope="row"
                                  onClick={this.props.onClickItem.bind(this, row)}>
-                    {row.name}
+                    <Link to={`/movieList/${row._id}`}>{row.name}</Link>
                 </StyledTableCell>
                 <StyledTableCell align="right"
                                  onClick={this.props.onClickItem.bind(this, row)}>{row.averageRating}</StyledTableCell>
@@ -82,7 +85,7 @@ export default class MovieLists extends Component {
                         <form onSubmit={this.handleSubmit.bind(this)} >
                             <input type="text" value={this.state.value} onChange={this.handleChange.bind(this)}/>
                             <input disabled={this.state.value < 3} style={{margin: "0 10px"}} type="submit" value='Ok' />
-                            <button type="button" onSubmit={this.handleCancel.bind(this)}>Cancel</button>
+                            <button type="button" onClick={() => this.handleCancel()}>Cancel</button>
                         </form>
                     </div>
 
@@ -129,6 +132,7 @@ export default class MovieLists extends Component {
                 console.log(err);
             });
     }
+
 
     handleCreateMode() {
         this.setState({isCreateMode: true});

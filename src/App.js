@@ -4,6 +4,8 @@ import Movie from "./Movie/Movie";
 import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import Imdb from "./Movie/Imdb";
+import MovieListDetail from "./Movie/MovieListDetail";
+import MovieLists from "./Movie/MovieLists";
 
 class App extends Component {
 
@@ -30,8 +32,9 @@ class App extends Component {
                     <BottomNavigationAction label="MovieList" to="/movieList" component={Link} />
                 </BottomNavigation>
                 <hr/>
-                <Route path="/" exact render={(props) => <Imdb/> }  />
-                <Route path="/movieList" render={(props) => <Movie/> }  />
+                <Route exact path="/"  render={(props) => <Imdb/> }  />
+                <Route exact path="/movieList" render={(props) => <Movie/> }  />
+                <Route exact path="/movieList/:id" render={(props, location) => <Movie/>}  />
             </Router>
         );
     }

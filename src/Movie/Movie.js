@@ -18,8 +18,13 @@ import Grid from "@material-ui/core/Grid";
         };
     }
 
+    componentDidMount() {
+        const { match: { params } } = this.props;
+        console.log()
+    }
 
-    render(){
+
+     render(){
         return(
             <Container maxWidth="lg">
                 <Grid container spacing={3}>
