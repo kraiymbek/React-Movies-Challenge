@@ -29,26 +29,31 @@ router.post('/moviesList/create', async (req, res) => {
 });
 
 router.get('/moviesList', async (req, res) => {
-    MoviesList.find({}, (err, MoviesCollectionRows) => {
-        if (err) return res.status(500).send(err);
-        MoviesCollectionRows.forEach(MoviesCollectionDetail => {
+    const moviesListCollection = await MoviesList.find({});
 
-                Movies.find({
-                    'uid': {
-                        $in: MoviesCollectionDetail.movies
+    for (const MoviesCollectionDetail of moviesListCollection) {
+        let averageRating = 0;
+        if (MoviesCollectionDetail.movies.length) {
+            const movies = await Movies.find({
+                'uid': {
+                    $in: MoviesCollectionDetail.movies
                     }
-                }, (err, movies) => {
-                    let aveRating = 0;
-                    movies.forEach(item => {
-                        aveRating += item.rating;
-                    });
-
-                    MoviesCollectionDetail['averageRating'] = aveRating/movies.length;
                 });
-            });
 
-            return res.status(200).send(MoviesCollectionRows);
-    });
+                let countRating = 0;
+
+                movies.forEach(item => {
+                    countRating += item.rating;
+                });
+
+                averageRating = countRating/movies.length;
+            }
+
+            MoviesCollectionDetail['averageRating'] = averageRating
+        }
+
+        res.status(200).send(moviesListCollection);
+
 });
 
 router.get('/moviesList/:id', async (req, res) => {

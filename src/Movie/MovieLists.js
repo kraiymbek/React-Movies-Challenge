@@ -129,17 +129,15 @@ export default class MovieLists extends Component {
         createMoviesList({name: this.state.value})
             .then(resp => {
                 this.getData();
-                this.setState({isCreateMode: false});
+                this.setState({isCreateMode: false, value: ''});
             })
             .catch(err => {
                 console.log(err);
             });
     }
 
-
     handleCreateMode() {
         this.setState({isCreateMode: true});
-
     }
 
     handleDelete(id) {

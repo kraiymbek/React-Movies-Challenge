@@ -3,7 +3,6 @@ import MovieLists from "./MovieLists"
 import MovieListDetail from "./MovieListDetail";
 import { Container } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
-import {getMoviesByIds} from "../helpers/movieListHelper";
 
 
  export default class Movie extends Component {

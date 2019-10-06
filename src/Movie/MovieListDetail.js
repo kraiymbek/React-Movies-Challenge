@@ -4,6 +4,7 @@ import MaterialTable from 'material-table';
 import Grid from "@material-ui/core/Grid";
 import {getMoviesByIds, addMovie, updateMoviesList, updateMovieById, deleteMovie} from "../helpers/movieListHelper";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import {Rating} from "@material-ui/lab";
 
 
 
@@ -20,7 +21,22 @@ export default class MovieListDetail extends Component {
                     title: 'Genre',
                     field: 'genre',
                 },
-                { title: 'Rating', field: 'rating', type: 'numeric' },
+                { title: 'Rating',
+                    field: 'rating',
+                    type: 'numeric',
+                    editComponent: props => (
+                        <Rating
+                            name="simple-controlled"
+                            value={+props.value}
+                            onChange={e => props.onChange(e.target.value)}
+                        />
+                    ),
+                    render: rowData => <Rating
+                        disabled
+                        name="simple-controlled"
+                        value={+rowData.rating}
+                    />
+                },
             ],
             data: [],
         };
@@ -35,7 +51,6 @@ export default class MovieListDetail extends Component {
     getMovies(moviesIds) {
         getMoviesByIds({movies: moviesIds})
             .then(res => {
-                console.log(res)
                 this.setState({
                     data: res.data,
                 });
