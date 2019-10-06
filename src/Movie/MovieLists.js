@@ -8,10 +8,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-import {createMoviesList, deleteMoviesListById, getMoviesLists} from '../helpers/movieListHelper'
+import { createMoviesList, deleteMoviesListById } from '../helpers/movieListHelper'
 import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
-import {Link} from "react-router-dom";
 
 const StyledTableCell = withStyles(theme => ({
     head: {
@@ -36,22 +34,14 @@ export default class MovieLists extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            moviesLists: [],
+            moviesLists: this.props.moviesLists,
             isCreateMode: false,
             value: '',
         };
     }
 
-    componentDidMount() {
-        this.getData();
-    }
-
-    getData() {
-        getMoviesLists().then(moviesList => {
-            this.setState({moviesLists: moviesList.data});
-        }).catch(err => {
-            console.log(err);
-        });
+    componentWillReceiveProps(nextProps, nextContext) {
+        this.setState({moviesLists: nextProps.moviesLists});
     }
 
     showMovieLists() {
@@ -139,6 +129,8 @@ export default class MovieLists extends Component {
     handleCreateMode() {
         this.setState({isCreateMode: true});
     }
+
+
 
     handleDelete(id) {
         deleteMoviesListById(id)

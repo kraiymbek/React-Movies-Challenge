@@ -3,6 +3,8 @@ import MovieLists from "./MovieLists"
 import MovieListDetail from "./MovieListDetail";
 import { Container } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
+import {getMoviesLists} from "../helpers/movieListHelper";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 
  export default class Movie extends Component {
@@ -11,32 +13,48 @@ import Grid from "@material-ui/core/Grid";
         super(props);
 
         this.state = {
+            moviesLists: [],
             isItemClicked: false,
             isEditing: false,
             isNewRecipe: false,
             currentMovielist: {},
             isDetailsLoading: true,
+            updateTable: false,
         };
+
+        this.getTableData();
     }
 
      render(){
         return(
             <Container maxWidth="lg">
-                <Grid container spacing={3}>
-                        <MovieLists tableUpdate={this.detailTableUpdate()} onClickItem={this.onClickItem.bind(this)}/>
-                        {this.renderDetail()}
-                </Grid>
+                {
+                    this.state.moviesLists.length ?
+                        <Grid container spacing={3}>
+                            <MovieLists moviesLists={this.state.moviesLists}
+                                        onClickItem={this.onClickItem.bind(this)}/>
+                            {this.renderDetail()}
+                        </Grid> : <CircularProgress />
+                }
+
             </Container>
         );
     }
+
+     getTableData() {
+         getMoviesLists().then(moviesList => {
+             this.setState({moviesLists: moviesList.data});
+         }).catch(err => {
+             console.log(err);
+         });
+     }
 
      renderDetail() {
          if (this.state.isItemClicked) {
              return <MovieListDetail
                  currentMovielist = {this.state.currentMovielist}
-                 tableUpdate={this.detailTableUpdate}
+                 tableUpdate={this.detailTableUpdate.bind(this)}
                  moviesLists={this.state.moviesLists}
-                 collectionMovies = {this.state.collectionMovies}
                  isDetailsLoading={this.state.isDetailsLoading}
              />;
          } else {
@@ -47,7 +65,8 @@ import Grid from "@material-ui/core/Grid";
      }
 
      detailTableUpdate() {
-         return true;
+        console.log("updated")
+        this.getTableData();
      }
 
      onClickItem(item){

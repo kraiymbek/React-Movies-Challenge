@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 import MaterialTable from 'material-table';
 import Grid from "@material-ui/core/Grid";
 import {getMoviesByIds, addMovie, updateMoviesList, updateMovieById, deleteMovie} from "../helpers/movieListHelper";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import {Rating} from "@material-ui/lab";
 
 
@@ -46,6 +45,7 @@ export default class MovieListDetail extends Component {
 
     componentWillReceiveProps(nextProps) {
         this.getMovies(nextProps.currentMovielist.movies);
+        this.setState({currentMovielist: nextProps.currentMovielist});
     }
 
     getMovies(moviesIds) {
@@ -56,6 +56,10 @@ export default class MovieListDetail extends Component {
                 });
             })
             .catch(err => console.log(err));
+    }
+
+    getAverageRatingData() {
+        return String(this.state.data.reduce((a,b) => a + b.rating,0)/this.state.data.length);
     }
 
     render()
@@ -85,7 +89,7 @@ export default class MovieListDetail extends Component {
                                                             return updateMoviesList(this.props.currentMovielist._id, {movies: existingMovies})
                                                         })
                                                         .then(res => {
-                                                            this.props.tableUpdate()
+                                                            this.props.tableUpdate();
                                                             const data = [...this.state.data];
                                                             data.push(newData);
                                                             this.setState({ ...this.state, data });
@@ -105,7 +109,7 @@ export default class MovieListDetail extends Component {
                                                         rating: +newData.rating,
                                                     })
                                                         .then(res => {
-                                                            // this.props.tableUpdate()
+                                                            this.props.tableUpdate();
                                                             const data = [...this.state.data];
                                                             data[data.indexOf(oldData)] = newData;
                                                             this.setState({ ...this.state, data });
@@ -126,6 +130,7 @@ export default class MovieListDetail extends Component {
 
                                                     updateMoviesList(this.props.currentMovielist._id, {movies: existingMovies})
                                                         .then(res => {
+                                                            this.props.tableUpdate();
                                                             const data = [...this.state.data];
                                                             data.splice(data.indexOf(oldData), 1);
                                                             this.setState({ ...this.state, data });
@@ -140,7 +145,7 @@ export default class MovieListDetail extends Component {
                                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
                                     <div className="rate-wrapper">
                                         <span className="title">Average Rate: </span>
-                                        <b className="value">{this.props.currentMovielist.averageRating ? this.props.currentMovielist.averageRating : 0}</b>
+                                        <b className="value">{this.getAverageRatingData()}</b>
                                     </div>
                                 </div>
 
