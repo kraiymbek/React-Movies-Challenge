@@ -42,10 +42,6 @@ export default class MovieLists extends Component {
         };
     }
 
-    componentWillReceiveProps() {
-        console.log("some props")
-    }
-
     componentDidMount() {
         this.getData();
     }
@@ -63,12 +59,16 @@ export default class MovieLists extends Component {
             <StyledTableRow  key={row._id} >
                 <StyledTableCell component="th" scope="row"
                                  onClick={this.props.onClickItem.bind(this, row)}>
-                    <Link to={`/movieList/${row._id}`}>{row.name}</Link>
+                    {row.name}
                 </StyledTableCell>
                 <StyledTableCell align="right"
-                                 onClick={this.props.onClickItem.bind(this, row)}>{row.averageRating}</StyledTableCell>
+                                 onClick={this.props.onClickItem.bind(this, row)}>
+                    {row.averageRating}
+                </StyledTableCell>
                 <StyledTableCell align="right"
-                                 onClick={this.props.onClickItem.bind(this, row)}>{row.movies.length}</StyledTableCell>
+                                 onClick={this.props.onClickItem.bind(this, row)}>
+                    {row.movies.length}
+                </StyledTableCell>
                 <StyledTableCell align="right">
                     <button  onClick={() => this.handleDelete(row._id)}><span style={{ color: 'red' }}>delete</span></button>
                 </StyledTableCell>
@@ -95,19 +95,22 @@ export default class MovieLists extends Component {
                 }
                 <hr/>
                 <Paper >
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <StyledTableCell>Name</StyledTableCell>
-                                <StyledTableCell align="right">Average Rate</StyledTableCell>
-                                <StyledTableCell align="right">Number of movies</StyledTableCell>
-                                <StyledTableCell align="right">Actions</StyledTableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.showMovieLists()}
-                        </TableBody>
-                    </Table>
+                    {this.state.moviesLists.length ?
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <StyledTableCell>Name</StyledTableCell>
+                                    <StyledTableCell align="right">Average Rate</StyledTableCell>
+                                    <StyledTableCell align="right">Number of movies</StyledTableCell>
+                                    <StyledTableCell align="right">Actions</StyledTableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {this.showMovieLists()}
+                            </TableBody>
+                        </Table>
+                        : 'No Movies collections created'
+                    }
                 </Paper>
             </Grid>
         );

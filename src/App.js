@@ -34,7 +34,6 @@ class App extends Component {
                 <hr/>
                 <Route exact path="/"  render={(props) => <Imdb/> }  />
                 <Route exact path="/movieList" render={(props) => <Movie/> }  />
-                <Route exact path="/movieList/:id" render={(props, location) => <Movie/>}  />
             </Router>
         );
     }

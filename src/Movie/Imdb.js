@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import { Container } from "@material-ui/core";
 import MaterialTable from "material-table";
-import {addMovie, getImdbList, getMoviesLists, updateMoviesList} from "../helpers/movieListHelper";
+import {addMovie, getImdbList, getMoviesLists, updateMoviesList, getMoviesByIds, updateMovieById} from "../helpers/movieListHelper";
 import CustomizedDialogs from "./imdb-dialog";
 import TextField from "@material-ui/core/TextField";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 export default class Imdb extends Component {
@@ -11,11 +12,12 @@ export default class Imdb extends Component {
     constructor(props){
         super(props);
 
-        this.getImdbData('hungry');
 
         getMoviesLists()
             .then(resp => {
-                this.setState({moviesLists: resp.data});
+                if (resp) {
+                    this.setState({moviesLists: resp.data});
+                }
             })
             .catch(err => console.log(err));
 
@@ -27,41 +29,74 @@ export default class Imdb extends Component {
                     title: 'Genre',
                     field: 'genre',
                 },
-                { title: 'User Rating', field: 'rating', type: 'numeric', editable: 'never' },
+                { title: 'Movie Rating', field: 'rating', type: 'numeric', editable: 'never' },
             ],
             data: [],
             currentRow: {},
             moviesLists: [],
             isDialogOpen: false,
-            globalSearch: '',
+            globalSearch: 'hungry',
+            allMovieIds: [],
+            ratingDictionary: {},
+            imdbData: [],
+            tableLoading: true,
         };
+
+        getMoviesByIds({})
+            .then(resp => {
+                if (resp) {
+                    this.setState({allMovieIds: resp.data.map(item => item.uid)});
+                }
+            })
+            .catch(err => console.log(err))
+            .finally(res => {
+                this.getImdbData(this.state.globalSearch);
+            });
     }
 
     getImdbData(quickSearch) {
+        this.setState({tableLoading: true});
         getImdbList({s: quickSearch})
             .then(resp => {
+                const hasRatingMovies = [];
                 if (resp && resp.data.Search && resp.data.Search.length) {
-                    this.setState({data: resp.data.Search.map(item => {
-                            return {
-                                title: item.Title,
-                                year: item.Year,
-                                genre: item.Type,
-                                rating: 0,
-                            }
-                        })});
+                    resp.data.Search.forEach(movie => {
+                        if (this.state.allMovieIds.includes(movie.imdbID)) {
+                            const foundMovieId = this.state.allMovieIds.find(movieId => movieId === movie.imdbID);
+                            hasRatingMovies.push(foundMovieId);
+                        }
+                    });
+
+                    this.setState({imdbData: resp.data.Search});
+                    return getMoviesByIds({movies: hasRatingMovies})
                 }
+
+                return new Promise(resolve => resolve(null));
+            })
+            .then(resp => {
+                this.setState({tableLoading: false});
+                const ratingDictionary = {};
+
+                if (resp && resp.data) {
+                    resp.data.forEach(item => {
+                        ratingDictionary[item.uid] = item.rating;
+                    });
+                }
+
+                this.setState({data: this.state.imdbData.map(item => {
+                        return {
+                            title: item.Title,
+                            year: item.Year.slice(0,4),
+                            genre: item.Type,
+                            rating: ratingDictionary[item.imdbID] ? ratingDictionary[item.imdbID] : 0,
+                            uid: item.imdbID,
+                        }
+                    }),
+                });
+
             })
             .catch(err => console.log(err));
     }
-
-    getData() {
-        getMoviesLists().then(moviesList => {
-            this.setState({moviesLists: moviesList.data});
-        }).catch(err => {
-            console.log(err);
-        });
-    }
-
 
     render(){
         return(
@@ -78,22 +113,28 @@ export default class Imdb extends Component {
                     />
                 </form>
 
+                {
+                    this.state.tableLoading ?
+                        <CircularProgress />
+                        : <MaterialTable
+                            title='Imdb title'
+                            columns={this.state.columns}
+                            data={this.state.data}
+                            actions={[
+                                {
+                                    icon: 'save',
+                                    tooltip: 'Add to User collection',
+                                    onClick: (event, rowData) => this.setState({currentRow: rowData, isDialogOpen: true})
+                                },
+                            ]}
+                            options={{
+                                actionsColumnIndex: -1
+                            }}
+                        />
+                }
 
-                    <MaterialTable
-                        title='Imdb title'
-                        columns={this.state.columns}
-                        data={this.state.data}
-                        actions={[
-                            {
-                                icon: 'save',
-                                tooltip: 'Add to User collection',
-                                onClick: (event, rowData) => this.setState({currentRow: rowData, isDialogOpen: true})
-                            },
-                        ]}
-                        options={{
-                            actionsColumnIndex: -1
-                        }}
-                    />
+
+
                 {this.state.isDialogOpen ? <CustomizedDialogs
                     selectedRow={this.state.currentRow}
                     isDialogOpen={this.state.isDialogOpen}
@@ -120,34 +161,41 @@ export default class Imdb extends Component {
             title: this.state.currentRow.title,
             year: +this.state.currentRow.year,
             genre: this.state.currentRow.genre,
-            rating: e.movieRating,
+            rating: +e.movieRating,
+            uid: this.state.currentRow.uid,
         };
 
 
-        const preSubmitPrepare = this.state.moviesLists.find(item => item._id === e.selectValue);
-        let existingMovies = [];
-        if (preSubmitPrepare && preSubmitPrepare.movies.length) {
-             existingMovies = preSubmitPrepare.movies;
+        const selectedMoviesCollection = this.state.moviesLists.find(item => item._id === e.selectValue);
+        let existingMoviesInCollection = [];
+        if (selectedMoviesCollection && selectedMoviesCollection.movies.length) {
+             existingMoviesInCollection = selectedMoviesCollection.movies;
         }
 
 
-        if (!this.state.moviesLists.some(item => item.title === movieBody.title)) {
-            addMovie(movieBody)
-                .then(res => {
-                    existingMovies.push(res.data._id);
 
-                    return updateMoviesList(e.selectValue, {movies: existingMovies});
-                })
-                .then(res => {
-                    console.log(res);
-                    this.getData();
-                })
-                .catch(err => console.log(err));
-        } else {
-            alert("Already existing movie");
-        }
+            if (!existingMoviesInCollection.some(movieId => movieId === movieBody.uid)) {
+                if (!this.state.allMovieIds.includes(this.state.currentRow.uid)) {
+                    addMovie(movieBody)
+                        .then(res => {
+                            existingMoviesInCollection.push(res.data.uid);
+                            return updateMoviesList(e.selectValue, {movies: existingMoviesInCollection});
+                        })
+                        .catch(err => console.log(err));
+                } else {
+                    updateMovieById(movieBody.uid, {
+                        rating: movieBody.rating
+                    })
+                        .then(res => {
+                            existingMoviesInCollection.push(this.state.currentRow.uid);
+                            return updateMoviesList(e.selectValue, {movies: existingMoviesInCollection});
+                        })
+                        .catch(err => console.log(err))
+                }
+            }  else {
+                alert("Already existing movie");
+            }
+
 
     }
-
-
 }

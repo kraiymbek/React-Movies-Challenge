@@ -4,6 +4,7 @@ const Movies = require('../models/movies');
 const router = new express.Router();
 const mongoose = require('mongoose');
 const axios = require('axios');
+const uuidv4 = require('uuid/v4')
 
 router.post('/moviesList/create', async (req, res) => {
 
@@ -28,26 +29,25 @@ router.post('/moviesList/create', async (req, res) => {
 });
 
 router.get('/moviesList', async (req, res) => {
-    MoviesList.find({}, (err, MoviesLists) => {
+    MoviesList.find({}, (err, MoviesCollectionRows) => {
         if (err) return res.status(500).send(err);
-        if (MoviesLists) {
-            MoviesLists.forEach(item => {
-                const movies = item.movies.map(item => mongoose.Types.ObjectId(item));
+        MoviesCollectionRows.forEach(MoviesCollectionDetail => {
 
                 Movies.find({
-                    '_id': {
-                        $in: movies
+                    'uid': {
+                        $in: MoviesCollectionDetail.movies
                     }
-                }, (err, Movies) => {
-                    const aveRating = Movies.reduce((a, b) => a + b.rating, 0);
-                    item['averageRating'] = aveRating/item.movies.length;
-                    console.log(item)
+                }, (err, movies) => {
+                    let aveRating = 0;
+                    movies.forEach(item => {
+                        aveRating += item.rating;
+                    });
+
+                    MoviesCollectionDetail['averageRating'] = aveRating/movies.length;
                 });
             });
 
-            console.log(MoviesLists)
-            return res.status(200).send(MoviesLists);
-        }
+            return res.status(200).send(MoviesCollectionRows);
     });
 });
 
@@ -109,13 +109,16 @@ router.get('/imdb/list', async (req, res) => {
         })
 });
 
+//-----------------movies api-------------------------------
+
 router.post('/movie/list', async (req, res) => {
-    const movies = req.body.movies.map(item => mongoose.Types.ObjectId(item));
-    Movies.find({
-        '_id': {
-            $in: movies
-        }
-    }, (err, MoviesLists) => {
+    const toFind = req.body.movies ? {
+            'uid': {
+                $in: req.body.movies
+            }
+        } : {};
+
+    Movies.find(toFind, (err, MoviesLists) => {
         if (MoviesLists) {
             res.send(MoviesLists);
             return;
@@ -131,6 +134,7 @@ router.post('/movie/add', async (req, res) => {
         year: req.body.year,
         genre: req.body.genre,
         rating: req.body.rating ? req.body.rating : 0,
+        uid: req.body.uid ? req.body.uid : uuidv4(),
     });
 
     try {
@@ -142,7 +146,7 @@ router.post('/movie/add', async (req, res) => {
 });
 
 router.delete('/movie/:id/delete', async (req, res) => {
-    Movies.findByIdAndRemove(req.params.id, (err, MoviesList) => {
+    Movies.findOneAndRemove({"uid": req.params.id}, (err, MoviesList) => {
         if (err) return res.status(500).send(err);
 
         const response = {
@@ -154,7 +158,8 @@ router.delete('/movie/:id/delete', async (req, res) => {
 });
 
 router.post('/movie/:id/edit', async (req, res) => {
-    Movies.findByIdAndUpdate(req.params.id, req.body, {new: true},(err, MoviesList) => {
+    Movies.findOneAndUpdate({"uid": req.params.id}, req.body, {new: true}, (err, MoviesList) => {
+        console.log(MoviesList)
         if (err) return res.status(500).send(err);
         return res.status(200).send(MoviesList);
     });

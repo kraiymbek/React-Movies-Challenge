@@ -3,6 +3,7 @@ import MovieLists from "./MovieLists"
 import MovieListDetail from "./MovieListDetail";
 import { Container } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
+import {getMoviesByIds} from "../helpers/movieListHelper";
 
 
  export default class Movie extends Component {
@@ -14,15 +15,10 @@ import Grid from "@material-ui/core/Grid";
             isItemClicked: false,
             isEditing: false,
             isNewRecipe: false,
-            currentMovielist: {}
+            currentMovielist: {},
+            isDetailsLoading: true,
         };
     }
-
-    componentDidMount() {
-        const { match: { params } } = this.props;
-        console.log()
-    }
-
 
      render(){
         return(
@@ -38,10 +34,11 @@ import Grid from "@material-ui/core/Grid";
      renderDetail() {
          if (this.state.isItemClicked) {
              return <MovieListDetail
+                 currentMovielist = {this.state.currentMovielist}
                  tableUpdate={this.detailTableUpdate}
                  moviesLists={this.state.moviesLists}
-                 isItemClicked={this.state.isItemClicked}
-                 currentMovielist = {this.state.currentMovielist}
+                 collectionMovies = {this.state.collectionMovies}
+                 isDetailsLoading={this.state.isDetailsLoading}
              />;
          } else {
              return <Grid item xs={7} sm={7}>
@@ -56,9 +53,8 @@ import Grid from "@material-ui/core/Grid";
 
      onClickItem(item){
          this.setState({
-             isItemClicked: item !== 'deleted',
-             currentMovielist: item
+             currentMovielist: item,
+             isItemClicked: item !== 'deleted'
          });
-
      }
 }
