@@ -118,7 +118,7 @@ export default class MovieLists extends Component {
         event.preventDefault();
         createMoviesList({name: this.state.value})
             .then(resp => {
-                this.props.onClickItem('created');
+                this.props.onCreateCollection();
                 this.setState({isCreateMode: false, value: ''});
             })
             .catch(err => {

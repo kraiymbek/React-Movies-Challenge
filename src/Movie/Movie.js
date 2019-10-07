@@ -30,7 +30,9 @@ import {getMoviesLists} from "../helpers/movieListHelper";
 
                         <Grid container spacing={3}>
                             <MovieLists moviesLists={this.state.moviesLists}
-                                        onClickItem={this.onClickItem.bind(this)}/>
+                                        onClickItem={this.onClickItem.bind(this)}
+                                        onCreateCollection = {this.onCreateCollection.bind(this)}
+                            />
                             {this.renderDetail()}
                         </Grid>
 
@@ -65,8 +67,13 @@ import {getMoviesLists} from "../helpers/movieListHelper";
         this.getTableData();
      }
 
+     onCreateCollection() {
+         this.getTableData();
+
+     }
+
      onClickItem(item){
-        if (item === 'deleted' || item === 'created') {
+        if (item === 'deleted') {
             this.getTableData();
         }
 
