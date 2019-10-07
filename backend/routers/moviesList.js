@@ -2,7 +2,6 @@ const express = require('express');
 const MoviesList = require('../models/moviesList');
 const Movies = require('../models/movies');
 const router = new express.Router();
-const mongoose = require('mongoose');
 const axios = require('axios');
 const uuidv4 = require('uuid/v4')
 
@@ -134,20 +133,28 @@ router.post('/movie/list', async (req, res) => {
 
 router.post('/movie/add', async (req, res) => {
 
-    const task = new Movies({
+    const task ={
         title: req.body.title,
         year: req.body.year,
         genre: req.body.genre,
         rating: req.body.rating ? req.body.rating : 0,
         uid: req.body.uid ? req.body.uid : uuidv4(),
-    });
+    };
 
-    try {
-        await task.save();
-        res.status(201).send(task);
-    } catch (e) {
-        res.status(400).send(e);
+    const foundOne = await Movies.findOne({"uid": req.body.uid});
+
+    if (!foundOne) {
+        console.log("not found")
+        Movies.create(task, (err, MoviesList) => {
+            if (err) return res.status(500).send(err);
+            return res.status(200).send(MoviesList);
+        });
+
+        return;
     }
+
+    console.log("found")
+    res.status(200).send('found')
 });
 
 router.delete('/movie/:id/delete', async (req, res) => {
@@ -163,7 +170,7 @@ router.delete('/movie/:id/delete', async (req, res) => {
 });
 
 router.post('/movie/:id/edit', async (req, res) => {
-    Movies.findOneAndUpdate({"uid": req.params.id}, req.body, {new: true}, (err, MoviesList) => {
+    Movies.findOneAndUpdate({"uid": req.params.id}, req.body, (err, MoviesList) => {
         console.log(MoviesList)
         if (err) return res.status(500).send(err);
         return res.status(200).send(MoviesList);

@@ -13,6 +13,8 @@
     "material-table": "latest",
     "mongodb": "^3.1.10",
     "mongoose": "^5.3.16",
+    "mongoose-beautiful-unique-validation": "^7.1.1",
+    "mongoose-unique-validator": "^2.0.3",
     "multiselect-dropdown-react": "^1.0.5",
     "natives": "^1.1.6",
     "npm": "^6.11.3",

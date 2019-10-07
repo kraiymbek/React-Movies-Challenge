@@ -84,7 +84,7 @@ export default function CustomizedDialogs(props) {
     const [collectionTableData, setCollectionTableData] = React.useState(props.moviesList.map(item => {
         return {
             name: item.name,
-            value: item.name,
+            value: item._id,
         }
     }));
 
@@ -99,9 +99,6 @@ export default function CustomizedDialogs(props) {
 
     const handleMovieCollection = (e) => {
         setSelectValue(e);
-        console.log(e)
-        console.log(moviesIdsDictionary)
-        console.log(props.moviesList)
     };
 
     const handleSumit = () => {
