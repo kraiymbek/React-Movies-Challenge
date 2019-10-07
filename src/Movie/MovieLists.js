@@ -118,7 +118,7 @@ export default class MovieLists extends Component {
         event.preventDefault();
         createMoviesList({name: this.state.value})
             .then(resp => {
-                this.getData();
+                this.props.onClickItem('created');
                 this.setState({isCreateMode: false, value: ''});
             })
             .catch(err => {
@@ -135,7 +135,6 @@ export default class MovieLists extends Component {
     handleDelete(id) {
         deleteMoviesListById(id)
             .then(resp => {
-                this.getData();
                 this.props.onClickItem('deleted');
             })
             .catch(err => {

@@ -81,7 +81,7 @@ router.delete('/moviesList/:id/delete', async (req, res) => {
 
         const response = {
             message: "Movie List successfully deleted",
-            id: MoviesList._id
+            id: MoviesList.uid
         };
         return res.status(200).send(response);
     });

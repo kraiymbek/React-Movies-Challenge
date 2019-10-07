@@ -4,7 +4,6 @@ import MovieListDetail from "./MovieListDetail";
 import { Container } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import {getMoviesLists} from "../helpers/movieListHelper";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
 
  export default class Movie extends Component {
@@ -28,14 +27,12 @@ import CircularProgress from "@material-ui/core/CircularProgress";
      render(){
         return(
             <Container maxWidth="lg">
-                {
-                    this.state.moviesLists.length ?
+
                         <Grid container spacing={3}>
                             <MovieLists moviesLists={this.state.moviesLists}
                                         onClickItem={this.onClickItem.bind(this)}/>
                             {this.renderDetail()}
-                        </Grid> : <CircularProgress />
-                }
+                        </Grid>
 
             </Container>
         );
@@ -65,11 +62,14 @@ import CircularProgress from "@material-ui/core/CircularProgress";
      }
 
      detailTableUpdate() {
-        console.log("updated")
         this.getTableData();
      }
 
      onClickItem(item){
+        if (item === 'deleted' || item === 'created') {
+            this.getTableData();
+        }
+
          this.setState({
              currentMovielist: item,
              isItemClicked: item !== 'deleted'
