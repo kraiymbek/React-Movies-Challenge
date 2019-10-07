@@ -69,7 +69,7 @@ router.get('/moviesList/:id', async (req, res) => {
 });
 
 router.post('/moviesList/:id/edit', async (req, res) => {
-    MoviesList.findByIdAndUpdate(req.params.id, req.body, {new: true},(err, MoviesList) => {
+    MoviesList.findByIdAndUpdate(req.params.id, req.body,(err, MoviesList) => {
         if (err) return res.status(500).send(err);
         return res.status(200).send(MoviesList);
     });

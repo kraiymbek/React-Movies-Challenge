@@ -51,6 +51,7 @@ export default class MovieListDetail extends Component {
     getMovies(moviesIds) {
         getMoviesByIds({movies: moviesIds})
             .then(res => {
+                console.log(res)
                 this.setState({
                     data: res.data,
                 });

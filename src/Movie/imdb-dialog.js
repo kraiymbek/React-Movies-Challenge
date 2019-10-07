@@ -15,6 +15,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import { Rating } from '@material-ui/lab';
 import Box from "@material-ui/core/Box";
+import Multiselect from 'multiselect-dropdown-react';
 
 
 const styles = theme => ({
@@ -77,8 +78,18 @@ const useStyles = makeStyles(theme => ({
 export default function CustomizedDialogs(props) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(props.isDialogOpen);
-    const [selectValue, setSelectValue] = React.useState('');
+    const [selectValue, setSelectValue] = React.useState([]);
     const [movieRating, setMovieRating] = React.useState(0);
+
+    const [collectionTableData, setCollectionTableData] = React.useState(props.moviesList.map(item => {
+        return {
+            name: item.name,
+            value: item.name,
+        }
+    }));
+
+    const [moviesIdsDictionary, setMoviesIdsDictionary] = React.useState({});
+
 
     const handleClose = () => {
         setOpen(false);
@@ -87,7 +98,10 @@ export default function CustomizedDialogs(props) {
 
 
     const handleMovieCollection = (e) => {
-        setSelectValue(e.target.value);
+        setSelectValue(e);
+        console.log(e)
+        console.log(moviesIdsDictionary)
+        console.log(props.moviesList)
     };
 
     const handleSumit = () => {
@@ -107,20 +121,7 @@ export default function CustomizedDialogs(props) {
                     <Typography gutterBottom>
                         Choose Movie Table
                     </Typography>
-                    <form className={classes.form} noValidate>
-                        <FormControl className={classes.formControl}>
-                            <InputLabel >Table</InputLabel>
-                            <Select
-                                value={selectValue}
-                                onChange={handleMovieCollection}
-                            >
-                                <MenuItem value="">Choose Collection</MenuItem>
-                                {props.moviesList.map(item => {
-                                    return <MenuItem value={item._id} key={item._id}>{item.name}</MenuItem>
-                                })}
-                            </Select>
-                        </FormControl>
-                    </form>
+                    <Multiselect options={collectionTableData} onSelectOptions={handleMovieCollection} />
 
                     <Box component="fieldset" mb={3} borderColor="transparent">
                         <Typography component="legend">Movie Rating</Typography>

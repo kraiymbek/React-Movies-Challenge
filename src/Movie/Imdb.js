@@ -165,37 +165,44 @@ export default class Imdb extends Component {
             uid: this.state.currentRow.uid,
         };
 
+        const selectedValues = e.selectValue;
 
-        const selectedMoviesCollection = this.state.moviesLists.find(item => item._id === e.selectValue);
-        let existingMoviesInCollection = [];
-        if (selectedMoviesCollection && selectedMoviesCollection.movies.length) {
-             existingMoviesInCollection = selectedMoviesCollection.movies;
-        }
+        selectedValues.forEach(selectedId => {
+            const selectedMoviesCollection = this.state.moviesLists.find(item => item._id === selectedId);
+            let existingMoviesInCollection = [];
+            if (selectedMoviesCollection && selectedMoviesCollection.movies.length) {
+                existingMoviesInCollection = selectedMoviesCollection.movies;
+            }
+            console.log('selectedMoviesCollection', selectedMoviesCollection)
+            console.log('existingMoviesInCollection', existingMoviesInCollection)
+
 
 
 
             if (!existingMoviesInCollection.some(movieId => movieId === movieBody.uid)) {
+                console.log("not existing")
                 if (!this.state.allMovieIds.includes(this.state.currentRow.uid)) {
+                    console.log("!allMovieIds", this.state.allMovieIds.includes(this.state.currentRow.uid))
                     addMovie(movieBody)
                         .then(res => {
                             existingMoviesInCollection.push(res.data.uid);
-                            return updateMoviesList(e.selectValue, {movies: existingMoviesInCollection});
+                            return updateMoviesList(selectedId, {movies: existingMoviesInCollection});
                         })
                         .catch(err => console.log(err));
                 } else {
+                    console.log("here");
                     updateMovieById(movieBody.uid, {
                         rating: movieBody.rating
                     })
                         .then(res => {
                             existingMoviesInCollection.push(this.state.currentRow.uid);
-                            return updateMoviesList(e.selectValue, {movies: existingMoviesInCollection});
+                            return updateMoviesList(selectedId, {movies: existingMoviesInCollection});
                         })
                         .catch(err => console.log(err))
                 }
             }  else {
                 alert("Already existing movie");
             }
-
-
+        });
     }
 }
