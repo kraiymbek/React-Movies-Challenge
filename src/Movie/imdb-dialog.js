@@ -1,5 +1,5 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, useTheme  } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
@@ -15,19 +15,38 @@ import MenuItem from "@material-ui/core/MenuItem";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import { Rating } from '@material-ui/lab';
 import Box from "@material-ui/core/Box";
-import Multiselect from 'multiselect-dropdown-react';
+import Input from '@material-ui/core/Input';
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
 
 
 const styles = theme => ({
     root: {
         margin: 0,
         padding: theme.spacing(2),
+        display: 'flex',
+        flexWrap: 'wrap',
     },
     closeButton: {
         position: 'absolute',
         right: theme.spacing(1),
         top: theme.spacing(1),
         color: theme.palette.grey[500],
+    },
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 120,
+        maxWidth: 300,
+    },
+    chips: {
+        display: 'flex',
+        flexWrap: 'wrap',
+    },
+    chip: {
+        margin: 2,
+    },
+    noLabel: {
+        marginTop: theme.spacing(3),
     },
 });
 
@@ -75,6 +94,17 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
+
 export default function CustomizedDialogs(props) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(props.isDialogOpen);
@@ -88,7 +118,11 @@ export default function CustomizedDialogs(props) {
         }
     }));
 
-    const [moviesIdsDictionary, setMoviesIdsDictionary] = React.useState({});
+    const collectionNameDictionary = {};
+
+    collectionTableData.forEach(item => {
+        collectionNameDictionary[item.name] = item.value;
+    });
 
 
     const handleClose = () => {
@@ -97,14 +131,15 @@ export default function CustomizedDialogs(props) {
     };
 
 
-    const handleMovieCollection = (e) => {
-        setSelectValue(e);
+    const handleMovieCollection = (event) => {
+        setSelectValue(event.target.value);
     };
 
     const handleSumit = () => {
         setOpen(false);
         props.dialogClosed();
-        props.dialogSubmited({movieRating, selectValue})
+        const formatedSelectValue = selectValue.map(item => collectionNameDictionary[item]);
+        props.dialogSubmited({movieRating, selectValue: formatedSelectValue})
     };
 
     return (
@@ -115,10 +150,24 @@ export default function CustomizedDialogs(props) {
                     Modal Collection Modal
                 </DialogTitle>
                 <DialogContent dividers>
-                    <Typography gutterBottom>
-                        Choose Movie Table
-                    </Typography>
-                    <Multiselect options={collectionTableData} onSelectOptions={handleMovieCollection} />
+                    <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="select-multiple-checkbox">Tag</InputLabel>
+                        <Select
+                            multiple
+                            value={selectValue}
+                            onChange={handleMovieCollection}
+                            input={<Input id="select-multiple-checkbox" />}
+                            renderValue={selected => selected.join(', ')}
+                            MenuProps={MenuProps}
+                        >
+                            {collectionTableData.map(data => (
+                                <MenuItem key={data.name} value={data.name}>
+                                    <Checkbox checked={selectValue.indexOf(data.name) > -1} />
+                                    <ListItemText primary={data.name} />
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
                     <Box component="fieldset" mb={3} borderColor="transparent">
                         <Typography component="legend">Movie Rating</Typography>

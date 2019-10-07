@@ -51,7 +51,6 @@ export default class MovieListDetail extends Component {
     getMovies(moviesIds) {
         getMoviesByIds({movies: moviesIds})
             .then(res => {
-                console.log(res)
                 this.setState({
                     data: res.data,
                 });
@@ -122,7 +121,6 @@ export default class MovieListDetail extends Component {
                                             new Promise(resolve => {
                                                 setTimeout(() => {
                                                     resolve();
-                                                    console.log(this.props.currentMovielist)
                                                     const existingMovies = this.props.currentMovielist.movies;
                                                     const index = existingMovies.indexOf(oldData.uid);
                                                     if (index > -1) {

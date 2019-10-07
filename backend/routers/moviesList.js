@@ -133,28 +133,20 @@ router.post('/movie/list', async (req, res) => {
 
 router.post('/movie/add', async (req, res) => {
 
-    const task ={
+    const task = new Movies({
         title: req.body.title,
         year: req.body.year,
         genre: req.body.genre,
         rating: req.body.rating ? req.body.rating : 0,
         uid: req.body.uid ? req.body.uid : uuidv4(),
-    };
+    });
 
-    const foundOne = await Movies.findOne({"uid": req.body.uid});
-
-    if (!foundOne) {
-        console.log("not found")
-        Movies.create(task, (err, MoviesList) => {
-            if (err) return res.status(500).send(err);
-            return res.status(200).send(MoviesList);
-        });
-
-        return;
+    try {
+        await task.save();
+        res.status(201).send(task);
+    } catch (e) {
+        res.status(400).send(e);
     }
-
-    console.log("found")
-    res.status(200).send('found')
 });
 
 router.delete('/movie/:id/delete', async (req, res) => {

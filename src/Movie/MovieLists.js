@@ -116,14 +116,18 @@ export default class MovieLists extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        createMoviesList({name: this.state.value})
-            .then(resp => {
-                this.props.onCreateCollection();
-                this.setState({isCreateMode: false, value: ''});
-            })
-            .catch(err => {
-                console.log(err);
-            });
+        if (this.props.moviesLists.some(item => item.name === this.state.value)) {
+            alert("already exists");
+        } else {
+            createMoviesList({name: this.state.value})
+                .then(resp => {
+                    this.props.onCreateCollection();
+                    this.setState({isCreateMode: false, value: ''});
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
     }
 
     handleCreateMode() {
